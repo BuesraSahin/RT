@@ -115,8 +115,8 @@ axis equal
   
   I = c*epsilon0*(E1+E2).^2; %Intensität
   
-figure(2)  
-plot(I)
+  
+  for i < 
 
 %%
 
