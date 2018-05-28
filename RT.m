@@ -86,7 +86,8 @@ hold on
 grid on
 axis equal
 
-%% Intensitätsverteilung Theorie
+%% Intensitätsverteilung Theorie (Wave parameters)
+
 
 E0 = 1; %amplitude of the electric field
 
@@ -96,30 +97,32 @@ k = (2*pi)/lambda; %wave number
 x = 0; %point 
 f = 1; 
 omega = 2*pi*f; %angular frequency
-phi1 = 0; phi2 = pi/2; %phase
+
 
 maxTime = 2;
 maxCount = 1000;
 count = 1:maxCount;
 t = count/maxCount*maxTime; %time
 
-%E = E0*cos(k*x-omega*t+phi); %electric field
+delta_phi = 0.5*pi; %phase shift 
+q_1 = 1:29;
+q_2 = (delta_phi*ones(29,1));
+phi = q_1'.*q_2; %phase
 
-E1 = E0*cos(omega*t+phi1);
-E2 = E0*cos(omega*t+phi2);
 
-I = (E1+E2).^2; %intensity
+E = E0*cos(omega*t+phi); %electric field
+V = sum(E);
+
+I = (V).^2; %intensity
 
 
 figure (2)
 
 plot(t,I, 'b'); 
 hold on;
-plot(t,E1, 'r');
-plot(t,E2, 'g');
+plot(t,E, 'r');
 hold off
 axis ([0 maxTime -1 4]);
-%set (gca, 'Frontsize', 9, 'FrontWeight', 'Bold', 'LineWidth', 1);
 grid on
 xlabel ('Time (s)');
 ylabel ('Intensity');
