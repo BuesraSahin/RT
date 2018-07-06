@@ -18,7 +18,7 @@ y           = -aperture:dy:aperture; %Field of view
     plano_convex(n,radius,thickness,dz,y);
 
 
-%% Figure1
+%% Figure
 
 front_lens = sqrt(radius^2 - (x_front-radius).^2); 
 figure(1)
@@ -91,15 +91,18 @@ axis equal
 
 E0 = 1; %amplitude of the electric field
 
-lambda = 10^(-6); %wavelength in [m]
-k = (2*pi)/lambda; %wave number
+l = -5:0.01:5; %deviation wavelength [nm]      
+lambda = 468*(ones(1001,1)') + l; %wavelength in [nm]
+k  = (2*pi).*(ones(1001,1)')/lambda; %wave number
+
+%%Änderung!!  Wellenlänge 468nm +- 5nm
 
 x = 0; %point 
 f = 1; 
 omega = 2*pi*f; %angular frequency
 
 
-maxTime = 2;
+maxTime = 5;
 maxCount = 1000;
 count = 1:maxCount;
 t = count/maxCount*maxTime; %time
@@ -114,7 +117,7 @@ E = E0*cos(omega*t+phi); %electric field
 V = sum(E);
 
 I = (V).^2; %intensity
-
+kV = sum(I); %kumulierte Intensität   ÄNDERUNG !!!
 
 figure (2)
 
@@ -126,6 +129,20 @@ axis ([0 maxTime -1 4]);
 grid on
 xlabel ('Time (s)');
 ylabel ('Intensity');
+
+%% Intensitätsverteilung
+
+% x_axis
+for i = 0:200        
+    if i <= x_line 
+        int = I;     % intensity of ray 
+    else 
+        int = 0.5*I;
+    end
+end
+
+
+%y_axis
 
 
 %%
