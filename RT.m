@@ -88,51 +88,45 @@ axis equal
 
 %% Intensitätsverteilung Theorie (Wave parameters)
 
-
-E0 = 1; %amplitude of the electric field
-
-l = -5:0.01:5; %deviation wavelength [nm]      
-lambda = 468*(ones(1001,1)') + l; %wavelength in [nm]
-k  = (2*pi).*(ones(1001,1)')/lambda; %wave number
-
-%%Änderung!!  Wellenlänge 468nm +- 5nm
-
-x = 0; %point 
-f = 1; 
-omega = 2*pi*f; %angular frequency
+f0 = 5; % frequency
+A = 2; % amplitude
+lambda = 468; %nm
+k = (2*pi)/lambda; 
 
 
+maxWaves = 10; % number of waves %erstmal nur 10 aber eigentlich 29!!
+ 
 maxTime = 5;
 maxCount = 1000;
-count = 1:maxCount;
-t = count/maxCount*maxTime; %time
+x = 10^(-4):10^(-4):0.1;
 
-delta_phi = 0.5*pi; %phase shift 
-q_1 = 1:29;
-q_2 = (delta_phi*ones(29,1));
-phi = q_1'.*q_2; %phase
+% Generate waves
+t = linspace(-f0/50,f0/50,maxCount); %nm
+df=0;
+for waves = 1: maxWaves
+       df = df+1;
+        w = 2*pi*(f0+df);
+I(waves,:)= (A*cos(w.*t+k.*x)).^2;
+end
 
-
-E = E0*cos(omega*t+phi); %electric field
-V = sum(E);
-
-I = (V).^2; %intensity
-kV = sum(I); %kumulierte Intensität   ÄNDERUNG !!!
-
-figure (2)
-
-plot(t,I, 'b'); 
+I_sum = sum(I);
+% Plot
+figure(2);
+for count = 1: maxWaves
+plot(t,I(count,:));
 hold on;
-plot(t,E, 'r');
-hold off
-axis ([0 maxTime -1 4]);
+end
+plot(t,I_sum);
+hold off;
 grid on
-xlabel ('Time (s)');
-ylabel ('Intensity');
+%set(gca, FontSize, 9, FontWeight, Bold, LineWidth, 1);
+xlabel('Time (s)');
+ylabel('Intensity');
+
 
 %% Intensitätsverteilung
 
-% x_axis
+
 for i = 0:200        
     if i <= x_line 
         int = I;     % intensity of ray 
@@ -141,8 +135,6 @@ for i = 0:200
     end
 end
 
-
-%y_axis
 
 
 %%
