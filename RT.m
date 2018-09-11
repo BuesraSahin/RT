@@ -4,8 +4,8 @@ clc
 
 %%  Code for plano-convex lens
 
-n           = 1.5168; %Index of refraction of lens
-radius      = 20; %Radius of spherical surface
+n           = 1.46; %Index of refraction of lens
+radius      = 20;   %Radius of spherical surface
 thickness   = 5; %Central thickness of lens
 dz          = 0.01; %Step size for computation purposes
 aperture    = 8;
@@ -28,7 +28,7 @@ hold on
 %Plano-convex lens
 line([40-thickness 40-thickness], [max(front_lens) -max(front_lens)],'color','black')
 plot(40-x_front,front_lens,'black',40-x_front,-front_lens,'black') %Lens front surface 
-plot(x_optaxis,zeros(1,length(x_optaxis)),'k--') %Optical axis
+plot(x_optaxis*5,zeros(1,length(x_optaxis)),'k--') %Optical axis
 hold off
 
 
@@ -54,29 +54,33 @@ y_ray = [raymatrix(:,1)'; raymatrix(:,1)'];
 plot(x_ray, y_ray, 'r')
 
 %Right mirror
-x_2 = [200 200];
-y_2 = [-15 15];
-plot(x_2, y_2, 'black')
+x_rm = [200 200];
+y_rm = [-15 15];
+plot(x_rm, y_rm, 'black')
 
 %Upper mirror
-x_3 = [135 165];
-y_3 = [50 50];
-plot(x_3, y_3, 'black');
+x_um = [135 165];
+y_um = [50 50];
+plot(x_um, y_um, 'black');
 
 %Transmitted rays
-x_2 = 200*ones(1,29);
+x_2 = x_rm(1,1).*ones(1,29);
 x_trans = [x_1'; x_2];
 y_trans = y_ray;
 plot (x_trans, y_trans, 'b');
 
 %Reflected rays
-y_3 = 50*ones(1,29); 
+y_3 = y_um(1,1).*ones(1,29); 
 x_reflect = [x_1'; x_1'];
 y_reflect = [raymatrix(:,1)'; y_3];
 plot (x_reflect, y_reflect, 'b');
 
 %Interference rays
-y_4 = -100*ones(1,29);
+detektor_posx = [140 160];
+detektor_posy = [-100 -100];
+plot(detektor_posx, detektor_posy, 'black')
+
+y_4 = detektor_posy(1)*ones(1,29);
 x_interference = x_reflect;
 y_interference = [raymatrix(:,1)'; y_4];
 plot (x_interference, y_interference, 'g');
@@ -104,18 +108,20 @@ x = 10^(-4):10^(-4):0.1;
 t = linspace(-f0/50,f0/50,maxCount); %nm
 df=0;
 for waves = 1: maxWaves
-       df = df+1;
+       df = df+10;
         w = 2*pi*(f0+df);
 I(waves,:)= (A*cos(w.*t+k.*x)).^2;
 end
 
-I_sum = sum(I);
+I_sum = sum(I)-20;
 % Plot
 figure(2);
+%{
 for count = 1: maxWaves
-plot(t,I(count,:));
-hold on;
+    plot(t,I(count,:));
+    hold on;
 end
+%}
 plot(t,I_sum);
 hold off;
 grid on
@@ -136,8 +142,63 @@ for i = 0:200
 end
 
 
+%%  Schnittpunkt: Linse 
 
-%%
+% Eingabe radius, y - Höhe, x_pos
+
+% Höhe ermitteln:
+x_pos   = 35; % Position der Linse
+sag     = radius - sqrt(radius.^2-y.^2); % Verlauf konvexe Seite
+x_linse = (x_pos + thickness) - sag; % Höhenwerte der Schnittpunkte
+
+
+sinphi1 = y/radius;   % Winkel in der Linse
+sinphi2 = sinphi1/n;
+phi1    = asin(sinphi1);
+phi2    = asin(sinphi2);
+theta   = phi1 - phi2;
+
+G       = thickness - sag; % Länge der Ak
+y_diff  = G.*tan(theta); % Diff zwischen Höhe am Ende der Linse und Anfang
+y_Schni = y - y_diff;
+
+%Schnittpunkt bei 
+%figure(1)
+%plot (x_pos*ones(1,29),y_Schni, 'og')
+%hold on
+
+% Winkel ermitteln:
+x_Anfang = -5; % Strahlenanfang
+
+beta1 = atan(abs(y_Schni)/(x_pos-x_Anfang)); %rad
+beta2 = beta1*180/pi; %deg
+
+
+%% Schnittpunkt: Strahlenteiler
+
+x_Schnitt_ST = deltax*ones(1,29) + y;
+y_Schnitt_ST = y;
+%plot(x_Schnitt_ST, y_Schnitt_ST, 'og')
+
+%% Schnittpunkt: rechter Spiegel
+
+x_Schnitt_rm = (x_rm(1)).*ones(1,29);
+y_Schnitt_rm = y;
+%plot(x_Schnitt_rm, y_Schnitt_rm, 'og')
+
+%% Schnittpunkt: oberer Spiegel
+
+x_Schnitt_um = x_Schnitt_ST;
+y_Schnitt_um = (y_um(1)).*ones(1,29);
+%plot(x_Schnitt_um, y_Schnitt_um, 'og')
+
+%% Schnittpunkt: Detektor
+
+x_Schnitt_D = x_Schnitt_ST;
+y_Schnitt_D = y_4;
+%plot(x_Schnitt_D, y_Schnitt_D, 'og')
+
+%% Rays
 
 function ray_air = plane_refract_ray(y, slope, thickness, n, z)
 theta1  = atan(slope);
@@ -165,7 +226,7 @@ function [raymatrix, z_front, z_optaxis, zmax] = plano_convex(...
 power = (n-1)/radius;
 f     = 1/power;
 
-zmax = floor(f+0.1*f);
+zmax = floor(f+0.035*f);
 z_front = 0:dz:thickness-dz;
 z_back = thickness:dz:zmax-dz;
 z_optaxis = [z_front, z_back];
@@ -197,5 +258,3 @@ for i = 1:length(y)
     end
 end
 end
-
-
