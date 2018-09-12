@@ -54,7 +54,8 @@ y_ray = [raymatrix(:,1)'; raymatrix(:,1)'];
 plot(x_ray, y_ray, 'r')
 
 %Right mirror
-x_rm = [200 200];
+delta_x = 0.3; % Verschiebung des r. Spiegels im Intervall 0.5:10^-3):0.499
+x_rm = [200+delta_x 200+delta_x];
 y_rm = [-15 15];
 plot(x_rm, y_rm, 'black')
 
@@ -102,7 +103,7 @@ maxWaves = 10; % number of waves %erstmal nur 10 aber eigentlich 29!!
  
 maxTime = 5;
 maxCount = 1000;
-x = 10^(-4):10^(-4):0.1;
+x = -0.5:10^(-3):0.499;
 
 % Generate waves
 t = linspace(-f0/50,f0/50,maxCount); %nm
@@ -122,7 +123,7 @@ for count = 1: maxWaves
     hold on;
 end
 %}
-plot(t,I_sum);
+plot(x+delta_x,I_sum);
 hold off;
 grid on
 %set(gca, FontSize, 9, FontWeight, Bold, LineWidth, 1);
