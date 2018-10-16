@@ -53,11 +53,27 @@ x_ray = [x_0; x_1'];
 y_ray = [raymatrix(:,1)'; raymatrix(:,1)'];
 plot(x_ray, y_ray, 'r')
 
+
 %Right mirror
-delta_x = 0.3; % Verschiebung des r. Spiegels im Intervall 0.5:10^-3):0.499
-x_rm = [200+delta_x 200+delta_x];
+a1 = 199; %min. Pos.wert
+a2 = 201; %max. Pos.wert
+j1  = 101; %Schritte
+a  = (a2-a1)/j1; %Schrittweite
+Da = 199; %Startwert
+for j2 = 0:100 %Für 100 kann jede beliebige Zahl zw 0 & 100 eingegeben werden 
+    if j2 == 0 
+        Da = 199;
+    else
+        Da = Da + a;
+    end
+end
+
+x_rm = [Da Da];
 y_rm = [-15 15];
 plot(x_rm, y_rm, 'black')
+hold on
+grid on
+
 
 %Upper mirror
 x_um = [135 165];
@@ -123,7 +139,7 @@ for count = 1: maxWaves
     hold on;
 end
 %}
-plot(x+delta_x,I_sum);
+plot(x,I_sum);
 hold off;
 grid on
 %set(gca, FontSize, 9, FontWeight, Bold, LineWidth, 1);
@@ -163,10 +179,11 @@ G       = thickness - sag; % Länge der Ak
 y_diff  = G.*tan(theta); % Diff zwischen Höhe am Ende der Linse und Anfang
 y_Schni = y - y_diff;
 
-%Schnittpunkt bei 
 %figure(1)
-%plot (x_pos*ones(1,29),y_Schni, 'og')
+%plot(x_linse,y, '*') %Schnittpunkte auf der konvexen Seite der Linse
+%plot(x_pos,y_Schni, '*') %Schnittpunkte auf der plan-Seite der Linse
 %hold on
+
 
 % Winkel ermitteln:
 x_Anfang = -5; % Strahlenanfang
@@ -183,7 +200,7 @@ y_Schnitt_ST = y;
 
 %% Schnittpunkt: rechter Spiegel
 
-x_Schnitt_rm = (x_rm(1)).*ones(1,29);
+x_Schnitt_rm = (Da).*ones(1,29);
 y_Schnitt_rm = y;
 %plot(x_Schnitt_rm, y_Schnitt_rm, 'og')
 
@@ -198,6 +215,26 @@ y_Schnitt_um = (y_um(1)).*ones(1,29);
 x_Schnitt_D = x_Schnitt_ST;
 y_Schnitt_D = y_4;
 %plot(x_Schnitt_D, y_Schnitt_D, 'og')
+
+%% Berechnung Interferenz
+
+l_ref   = y_3-y; %Länge der ref Strahlen
+l_trans =  x_Schnitt_rm-x_Schnitt_ST; %Länge der trans Strahlen
+
+l_1      = abs(l_trans - l_ref); %Weglängenunterschied
+l_2 = 2*l_1; %Gangunterschied (da Strecke zwei mal durchlaufen)
+
+for l = j2
+    if l == 0
+        'konstruktive Interferenz'
+    elseif l == 100
+        'konstruktive Interferenz'
+    else 
+        'destruktive Interferenz'
+    end
+end
+
+
 
 %% Rays
 
