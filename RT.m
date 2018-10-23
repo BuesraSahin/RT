@@ -55,24 +55,9 @@ plot(x_ray, y_ray, 'r')
 
 
 %Right mirror
-a1 = 199; %min. Pos.wert
-a2 = 201; %max. Pos.wert
-j1  = 101; %Schritte
-a  = (a2-a1)/j1; %Schrittweite
-Da = 199; %Startwert
-for j2 = 0:100 %Für 100 kann jede beliebige Zahl zw 0 & 100 eingegeben werden 
-    if j2 == 0 
-        Da = 199;
-    else
-        Da = Da + a;
-    end
-end
-
-x_rm = [Da Da];
-y_rm = [-15 15];
+x_rm =[200 200];
+y_rm =[-15 15];
 plot(x_rm, y_rm, 'black')
-hold on
-grid on
 
 
 %Upper mirror
@@ -81,7 +66,7 @@ y_um = [50 50];
 plot(x_um, y_um, 'black');
 
 %Transmitted rays
-x_2 = x_rm(1,1).*ones(1,29);
+x_2 = 200*ones(1,29);
 x_trans = [x_1'; x_2];
 y_trans = y_ray;
 plot (x_trans, y_trans, 'b');
@@ -109,8 +94,10 @@ axis equal
 
 %% Intensitätsverteilung Theorie (Wave parameters)
 
+
+
 f0 = 5; % frequency
-A = 2; % amplitude
+Amp = 2; % amplitude
 lambda = 468; %nm
 k = (2*pi)/lambda; 
 
@@ -119,27 +106,26 @@ maxWaves = 10; % number of waves %erstmal nur 10 aber eigentlich 29!!
  
 maxTime = 5;
 maxCount = 1000;
-x = -0.5:10^(-3):0.499;
+x = 10^(-4):10^(-4):0.1;
+%x = -0.5:10^(-3):0.499; ALternativ!
 
 % Generate waves
 t = linspace(-f0/50,f0/50,maxCount); %nm
 df=0;
 for waves = 1: maxWaves
-       df = df+10;
+       df = df+1;
         w = 2*pi*(f0+df);
-I(waves,:)= (A*cos(w.*t+k.*x)).^2;
+I(waves,:)= (Amp*cos(w.*t+k.*x)).^2;
 end
 
-I_sum = sum(I)-20;
+I_sum = sum(I);
 % Plot
 figure(2);
-%{
 for count = 1: maxWaves
-    plot(t,I(count,:));
-    hold on;
+plot(t,I(count,:));
+hold on;
 end
-%}
-plot(x,I_sum);
+plot(t,I_sum);
 hold off;
 grid on
 %set(gca, FontSize, 9, FontWeight, Bold, LineWidth, 1);
@@ -198,11 +184,56 @@ x_Schnitt_ST = deltax*ones(1,29) + y;
 y_Schnitt_ST = y;
 %plot(x_Schnitt_ST, y_Schnitt_ST, 'og')
 
-%% Schnittpunkt: rechter Spiegel
+%% Schnittpunkt: rechter Spiegel + Berechnung Interferenz
 
-x_Schnitt_rm = (Da).*ones(1,29);
-y_Schnitt_rm = y;
-%plot(x_Schnitt_rm, y_Schnitt_rm, 'og')
+t2= 1;
+
+
+Startwert=0; 
+Anzahlwerte=101; 
+
+A(1)=Startwert; 
+
+for n1=2:Anzahlwerte 
+  A(n1)=A(n1-1)+0.02;
+  Av = A + 199;
+  
+  %plot(Av(n1),y,'xr')
+  %grid on
+  %hold on
+  
+%Länge der Strahlen
+l_ref   = y_3-y; %Länge der ref Strahlen
+l_trans = Av(n1).*ones(1,29) - x_Schnitt_ST; %Länge der trans Strahle(n
+
+l_1      = abs(l_trans - l_ref); %Weglängenunterschied
+l_2 = 2*l_1; %Gangunterschied (da Strecke zwei mal durchlaufen)
+
+I1 = Amp*sin(((2*pi*1000)/lambda)*(Av(n1)-199));
+    
+figure(3)
+plot(Av,I1,'*r')
+hold on
+grid on
+
+end 
+
+
+for n2 = 1:Av
+    n2 = n2+A
+    int = lambda*(n2)
+    if n2 == 0
+        'konstruktive Interferenz'
+    elseif n2 == 51
+        'konstruktive Interferenz'
+    elseif n2 ==101
+        'konstruktive Interferenz'
+    else 
+        'destruktive Interferenz'
+    end
+end
+
+
 
 %% Schnittpunkt: oberer Spiegel
 
@@ -215,25 +246,6 @@ y_Schnitt_um = (y_um(1)).*ones(1,29);
 x_Schnitt_D = x_Schnitt_ST;
 y_Schnitt_D = y_4;
 %plot(x_Schnitt_D, y_Schnitt_D, 'og')
-
-%% Berechnung Interferenz
-
-l_ref   = y_3-y; %Länge der ref Strahlen
-l_trans =  x_Schnitt_rm-x_Schnitt_ST; %Länge der trans Strahlen
-
-l_1      = abs(l_trans - l_ref); %Weglängenunterschied
-l_2 = 2*l_1; %Gangunterschied (da Strecke zwei mal durchlaufen)
-
-for l = j2
-    if l == 0
-        'konstruktive Interferenz'
-    elseif l == 100
-        'konstruktive Interferenz'
-    else 
-        'destruktive Interferenz'
-    end
-end
-
 
 
 %% Rays
